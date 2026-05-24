@@ -1,0 +1,98 @@
+Ques:-
+
+The Nautilus DevOps team is currently engaged in a cleanup process, focusing on removing unnecessary data and services from their AWS account. As part of the migration process, several resources were created for one-time use only, necessitating a cleanup effort to optimize their AWS environment.
+
+A S3 bucket named xfusion-bck-14302 already exists.
+
+1) Copy the contents of xfusion-bck-14302 S3 bucket to /opt/s3-backup/ directory on terraform-client host (the landing host once you load this lab).
+
+2) Delete the S3 bucket xfusion-bck-14302.
+
+3) Use the AWS CLI through Terraform to accomplish this task—for example, by running AWS CLI commands within Terraform. The Terraform working directory is /home/bob/terraform. Update the main.tf file (do not create a separate .tf file) to accomplish this task.
+
+Note: Right-click under the EXPLORER section in VS Code and select Open in Integrated Terminal to launch the terminal.
+
+
+
+
+Soln:-
+
+Step 1:- Navigate to your Terraform working directory
+
+cd /home/bob/terraform
+
+
+
+Step 2:- Verify the provider.tf file with the following content:
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.91.0"
+    }
+  }
+}
+
+provider "aws" {
+  region                      = "us-east-1"
+  skip_credentials_validation = true
+  skip_requesting_account_id  = true
+  s3_use_path_style = true
+
+endpoints {
+    ec2            = "http://aws:4566"
+    apigateway     = "http://aws:4566"
+    cloudformation = "http://aws:4566"
+    cloudwatch     = "http://aws:4566"
+    dynamodb       = "http://aws:4566"
+    es             = "http://aws:4566"
+    firehose       = "http://aws:4566"
+    iam            = "http://aws:4566"
+    kinesis        = "http://aws:4566"
+    lambda         = "http://aws:4566"
+    route53        = "http://aws:4566"
+    redshift       = "http://aws:4566"
+    s3             = "http://aws:4566"
+    secretsmanager = "http://aws:4566"
+    ses            = "http://aws:4566"
+    sns            = "http://aws:4566"
+    sqs            = "http://aws:4566"
+    ssm            = "http://aws:4566"
+    stepfunctions  = "http://aws:4566"
+    sts            = "http://aws:4566"
+    rds            = "http://aws:4566"
+  }
+}
+
+
+
+Step 3:- Create the main.tf file with the following content: 
+
+resource "null_resource" "s3_cleanup" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws s3 cp s3://xfusion-bck-30794 /opt/s3-backup/ --recursive && \
+      aws s3 rm s3://xfusion-bck-30794 --recursive && \
+      aws s3 rb s3://xfusion-bck-30794
+    EOT
+  }
+}
+
+
+	
+Step 4:- Initialize Terraform in the directory
+	
+terraform init
+
+
+
+Step 5:- Plan the configuration in the directory
+
+terraform plan
+
+
+
+Step 6:- Apply the configuration to create the key pair
+
+terraform apply --auto-approve
